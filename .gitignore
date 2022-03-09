@@ -1,3 +1,6 @@
+# firebase secret
+firebase-admin-key.json
+
 # Logs
 logs
 *.log
