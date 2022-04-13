@@ -3,7 +3,7 @@ const express = require("express");
 // init
 const router = express.Router();
 // db
-const {db} = require("../fb");
+const { db } = require("../fb");
 const AlbumsRef = db.collection("albums");
 // joi validation
 const { validateAlbum } = require("../models/album.js")
@@ -13,10 +13,14 @@ router.get("/", async (req, res) => {
         let totalAlbums = await AlbumsRef.get();
 
         let allAlbums = [];
-        
-        totalAlbums.forEach(doc => allAlbums.push(doc.data()));
 
-        return res.status(200).json({ albums : allAlbums });
+        totalAlbums.forEach(doc => {
+            let album = doc.data();
+            album.id = doc.id;
+            allAlbums.push(album)
+        });
+
+        return res.status(200).json({ albums: allAlbums });
     } catch (err) {
         console.log(err);
         res.status(404).json({ "error": err });
@@ -27,8 +31,9 @@ router.get("/:id", async (req, res) => {
     try {
         let id = req.params.id
 
-        let album = await AlbumsRef.doc(id).get().then(d => d.data());
-        return res.status(200).json({ album : album });
+        let album = await AlbumsRef.doc(id).get();
+        let albumData = {id : album.id, ...album.data()};
+        return res.status(200).json(albumData);
     } catch (err) {
         console.log(err);
         res.status(404).json({ "error": err });
