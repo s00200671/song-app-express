@@ -32,7 +32,7 @@ router.get("/:id", async (req, res) => {
         let id = req.params.id
 
         let album = await AlbumsRef.doc(id).get();
-        let albumData = {id : album.id, ...album.data()};
+        let albumData = { id: album.id, ...album.data() };
         return res.status(200).json(albumData);
     } catch (err) {
         console.log(err);
@@ -55,6 +55,32 @@ router.post("/", async (req, res) => {
         res.status(201).json({ id: resp.id });
     } catch (err) {
         res.status(400).json({ "error": "Cannot post Album : " + err });
+    }
+});
+
+router.put("/fav/:id", async (req, res) => {
+    try {
+        let id = req.params.id
+        let fav = req.body.c;
+        if (fav != 1 && fav != -1) {
+            return res.status(400).json({ "error": "Error adding fav sum" });
+        }
+        let album = await AlbumsRef.doc(id).get()
+            .then(doc => {
+                if (doc.exists) {
+
+                    let albumdata = doc.data();
+                    let newFav = albumdata?.favouritesNo > 0 ? albumdata?.favouritesNo + fav : 1;
+                    AlbumsRef.doc(id).set({ favouritesNo: newFav }, { merge: true });
+                    return res.status(201).json();
+                }
+                else {
+                    return res.status(400).json({ "error": "Cannot update fav : " + err });
+                }
+            });
+        // success
+    } catch (err) {
+        res.status(400).json({ "error": "Cannot update fav : " + err });
     }
 });
 
