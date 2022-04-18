@@ -12,7 +12,12 @@ const { validateRating } = require("../models/rating");
 
 router.get("/", async (req, res) => {
     try {
-        let totalAlbums = await AlbumsRef.get();
+        const {title} = req.query;
+
+
+        let totalAlbums = title ? await AlbumsRef
+        .where('title', '>=', title)
+        .where('title', '<=', title + '\uf8ff').get() : await AlbumsRef.get();
 
         let allAlbums = [];
 
